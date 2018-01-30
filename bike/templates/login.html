@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block body %}
+<div class="container-fluid solid">
+	<div class="row">
+		<div class="col-xs-10 col-xs-offset-1 text-center centered">
+			<h1 id="logo-text">Go Bike Go</h1>
+			<span class="flashed-messages">
+				{% for message in get_flashed_messages() %}
+					{{ message }}
+				{% endfor %}
+			</span>
+			<form action="/login" name="login" method="POST">
+				<fieldset class="floating-placeholder">
+					<input type="text" name="username" id="username" required>
+					<label for="username">Username</label>
+				</fieldset>
+				<fieldset class="floating-placeholder">
+		      <input type="password" name="password" id="password" required>
+		      <label for="password">Password</label>
+		    </fieldset>
+		    <input type="submit" value="Submit" name="submit" id="submit">
+			</form>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-4 col-xs-offset-4">
+			<p class="text-center goto-register-form">Don't have an account? <b><a href="/register">Register</a></b></p>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Test{% endblock %}
+{% block meta %}<script src="http://maps.google.com/maps/api/js?key=AIzaSyD5BOHJtA9GKwGPHxQiqaBYK6LjmmY-SMI" type="text/javascript"></script>{% endblock %}
+{% block body %}
+
+<div id="over-map">
+  <h1>Welcome back {{ user.username }}</h1>
+  <a href="/update">Update Favorite Places</a>
+  {% for message in get_flashed_messages() %}
+    {{ message }}
+  {% endfor %}
+</div>
+
+<div id="map"></div>
+<div id="infowindow"></div>
+
+  <script>
+
+    var home_markers = [
+	    {% for s in home %}
+	    ['{{ s.name }}', {{ s.lat() }}, {{ s.lng() }}, {{ s.num_bikes_available }}, {{ s.num_docks_available }}],
+	    {% endfor %}
+    ];
+
+    var home_content = [
+      {% for s in home %}
+      ['<div id="bodyContent">' + '<p>{{s.name}} bikes: {{ s.num_bikes_available }} docks: {{ s.num_docks_available }}</p>' + '</div>'],
+      {% endfor %}
+    ];
+
+    var work_markers = [
+	    {% for s in work %}
+	    ['{{ s.name }}', {{ s.lat() }}, {{ s.lng() }}, {{ s.num_bikes_available }}, {{ s.num_docks_available }}],
+	    {% endfor %}
+    ];
+
+    var work_content = [
+      {% for s in work %}
+      ['<div id="bodyContent">' + '<p>{{s.name}} docks: {{ s.num_docks_available }} bikes: {{ s.num_bikes_available }} </p>' + '</div>'],
+      {% endfor %}
+    ];
+
+    var bounds = new google.maps.LatLngBounds();
+    var infoWindow = new google.maps.InfoWindow();
+
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 12,
+      center: {lat: 40.742258, lng: -74.001383},
+      scrollwheel: false
+    });
+
+    var infowindow = new google.maps.InfoWindow();
+    var gmarkers = [];
+    var marker, i;
+
+    // Add Map Title
+    var titleControl = $('#over-map');
+    map.controls[google.maps.ControlPosition.TOP_CENTER].push(titleControl);
+
+    // Add Map Markers (home)
+    for (i = 0; i < 5; i++) { 
+    	var position = new google.maps.LatLng(home_markers[i][1], home_markers[i][2]);
+      bounds.extend(position);
+      marker = new google.maps.Marker({
+        position: position,
+        map: map
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(home_markers[i][0]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+
+      google.maps.event.addListener(marker, 'click', (function (marker, i) {
+              return function () {
+                  //infoWindow.setContent(content[i][0]);
+                  //infoWindow.open(map, marker);    
+              jQuery( '#infowindow' ).empty();
+              jQuery( '#infowindow' ).append( home_content[i][0] );          
+              }
+          })(marker, i));
+          gmarkers.push(marker);
+    };
+
+    // Add Map Markers (work)
+    for (i = 0; i < 5; i++) { 
+    	var position = new google.maps.LatLng(work_markers[i][1], work_markers[i][2]);
+      bounds.extend(position);
+      marker = new google.maps.Marker({
+        position: position,
+        map: map
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(work_markers[i][0]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+
+      google.maps.event.addListener(marker, 'click', (function (marker, i) {
+              return function () {
+                  //infoWindow.setContent(content[i][0]);
+                  //infoWindow.open(map, marker);    
+              jQuery( '#infowindow' ).empty();
+              jQuery( '#infowindow' ).append( work_content[i][0] );          
+              }
+          })(marker, i));
+          gmarkers.push(marker);
+    };
+
+    map.fitBounds(bounds);
+
+  </script>
+{% endblock %}

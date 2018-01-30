@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title %}{% endblock %}</title>
+	{% block meta %}{% endblock %}
+	<!-- FAVICON -->
+	<!-- <link rel="icon" href="http://example.com/favicon.png"> -->
+	<!-- JQUERY -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <!-- FONT, BOOTSTRAP & CSS -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Pacifico" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <!-- GOOGLE PLACES LIBRARY -->
+<!--   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5BOHJtA9GKwGPHxQiqaBYK6LjmmY-SMI&libraries=places"></script>
+ -->  <!-- MY STYLES -->
+  <link rel="stylesheet" type="text/css" href="/static/main.css">
+</head>
+<body>
+	{% block body %}{% endblock %}
+  <script src="/static/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block meta %}
+    <meta charset="utf-8">
+{% endblock %}
+{% block body %}
+    <div class="container-fluid solid">
+      <div class="row">
+        <div class="col-xs-10 col-xs-offset-1 text-center centered">
+          <h1 id="logo-text">Go Bike Go</h1>
+          <span class="flashed-messages">
+            {% for message in get_flashed_messages() %}
+              {{ message }}
+            {% endfor %}
+          </span>
+          <form action="/register" name="register" method="POST">
+            <fieldset>
+              <input type="text" id="username" name="username" required>
+              <label for="username">Username</label>
+            </fieldset>
+            <fieldset>
+              <input type="password" id="password" name="password" required>
+              <label for="Password">Password</label>
+            </fieldset>
+            <fieldset>
+              <input id="autocompleteHome" placeholder=""
+                onFocus="geolocate()" type="text" name="home" required></input>
+              <label for="autocompleteHome">Enter your home address</label>
+            </fieldset>
+            <fieldset>
+              <input id="autocompleteWork" placeholder="" 
+                onFocus="geolocate()" type="text" name="work" required></input>
+              <label for="autocompleteWork">Enter your work address</label>
+            </fieldset>
+            <input type="text" id="home" name="homeLngLat" required hidden>
+            <input type="text" id="work" name="workLngLat" required hidden>
+            <input type="submit" name="Submit">
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-4 col-xs-offset-4">
+          <p class="text-center goto-login-form">Already have an account? <b><a href="/login">Log In</a></b></p>
+        </div>
+    </div>
+  </div>
+
+
+    <script>
+      // Get lat/lng using the autocomplete feature
+      // of the Google Places API to register users.
+      // Coordinates are sent in the form "Lng Lat" in order to comply with db constraints.
+
+      var autocompleteHome, autocompleteWork;
+
+      function initAutocomplete() {
+        // Create the autocomplete object, restricting the search to geographical
+        // location types.
+        autocompleteHome = new google.maps.places.Autocomplete(
+            /** @type {!HTMLInputElement} */(document.getElementById('autocompleteHome')),
+            {types: ['geocode']});
+        autocompleteWork = new google.maps.places.Autocomplete(
+            /** @type {!HTMLInputElement} */(document.getElementById('autocompleteWork')),
+            {types: ['geocode']});
+
+        // When the user selects an address from the dropdown, populate the lat/lng in
+        // the hidden input field.
+        autocompleteHome.addListener('place_changed', fillInLatLngHome);
+        autocompleteWork.addListener('place_changed', fillInLatLngWork);
+      }
+
+      function fillInLatLngHome(){
+        // Get the lat/lng details from the autocomplete object.
+        var place = autocompleteHome.getPlace();
+        console.log(place.geometry.location.lat(), place.geometry.location.lng());
+        var coordinates = String(place.geometry.location.lng()) + ' ' + String(place.geometry.location.lat())
+        document.getElementById('home').value = coordinates;
+      }
+
+      function fillInLatLngWork(){
+        // Get the lat/lng details from the autocomplete object.
+        var place = autocompleteWork.getPlace();
+        console.log(place.geometry.location.lat(), place.geometry.location.lng());
+        var coordinates = String(place.geometry.location.lng()) + ' ' + String(place.geometry.location.lat())
+        document.getElementById('work').value = coordinates;
+      }
+
+      // Bias the autocomplete object to the user's geographical location,
+      // as supplied by the browser's 'navigator.geolocation' object.
+      // function geolocate() {
+      //   if (navigator.geolocation) {
+      //     navigator.geolocation.getCurrentPosition(function(position) {
+      //       var geolocation = {
+      //         lat: position.coords.latitude,
+      //         lng: position.coords.longitude
+      //       };
+      //       var circle = new google.maps.Circle({
+      //         center: geolocation,
+      //         radius: position.coords.accuracy
+      //       });
+      //       autocomplete.setBounds(circle.getBounds());
+      //     });
+      //   }
+      // }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyChDD33dVw4lStUsD7uzEz-wpXfPq5Aqsw&libraries=places&callback=initAutocomplete"
+        async defer></script>
+{% endblock %}
