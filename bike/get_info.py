@@ -26,9 +26,12 @@ JSON Information about the stations is obtained from these links
 
       """
 import requests, json
-from model import db, Station
+from model import db, Station, Trip
 from sqlalchemy import exc
-
+import boto3
+import zipfile
+import io
+import time
 def seed_station_information():
 	"""Get's and formats all station information in order to update stations in
 	the database.
@@ -55,6 +58,7 @@ def seed_station_information():
 		try:
 			db.session.add(new_station)
 			db.session.commit()
+			print('Commitetd')
 		except exc.IntegrityError:
 			db.session.rollback()
 
@@ -62,14 +66,14 @@ def update_data():
 	"Get all the details of batch processed data"
 
 	session = boto3.session.Session(
-        aws_access_key_id="AKIAJ2DTCQ33IONOME4Q",
-        aws_secret_access_key="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"
+        aws_access_key_id="AKIAITBW5KDFRGWH6U3Q",
+        aws_secret_access_key="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"
         )
 
         s3 = session.resource("s3")
         bucket = s3.Bucket('citibikenycdataset')
         obj = bucket.Object('201307-201402-citibike-tripdata.zip')
-
+	i=0
         with io.BytesIO(obj.get()["Body"].read()) as tf:
 
                 # rewind the file
@@ -78,22 +82,38 @@ def update_data():
                 # Read the file as a zipfile and process the members
                 zfile =  zipfile.ZipFile(tf, mode='r')
                 for finfo in zfile.infolist():
+			first = True
                         ifile = zfile.open(finfo)
                         trip = ifile.readlines()
-                        start_point = 'POINT(' + str(trip[]) + ' ' + str(trips['start_lat']) + ')'
-			end_point = 'POINT(' + str(trips['stop_lon']) + ' ' + str(trips['stop_lat']) + ')'
-
-			new_trip = Trip(
-						trip_duration = trip[],
-						start_point = start_point,
-						end_point = end_point)
-
-			try:
-				db.session.add(new_trip)
-				db.session.commit()
-			except exc.IntegrityError:
-				db.session.rollback()
-
+			for line in trip:
+				data = line.split(',')
+				trip_duration=data[0].replace('"', '')
+				start_lat = data[5].replace('"','')
+				start_lon = data[6].replace('"', '')
+				end_lat = data[9].replace('"','')
+	                        end_lon = data[10].replace('"', '')
+				#print(start_lat)
+				if not trip_duration == 'tripduration':
+					i = i+1
+		                        start_point = 'POINT(' + start_lat + ' ' + start_lon + ')'
+					end_point = 'POINT(' + end_lat + ' ' + end_lon + ')'
+				        #print(start_point)	
+					new_trip = Trip(
+							id = i,
+							trip_duration = trip_duration,
+							start_point = start_point,
+							end_point = end_point)
+					#print(new_trip)
+					try:
+						#print('Inside try')
+						db.session.add(new_trip)
+						#print('Added to db')						
+						db.session.commit()
+						#print('Committed to database')
+						time.sleep(2)
+					except exc.IntegrityError:
+						db.session.rollback()
+					
 
 
 
@@ -124,4 +144,5 @@ def system_alerts():
 		https://gbfs.citibikenyc.com/gbfs/en/system_alerts.json"""
 	pass
 
-
+"""if __name__ == '__main__':
+	update_data()"""

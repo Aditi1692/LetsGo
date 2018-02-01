@@ -10,7 +10,7 @@ from geoalchemy2 import func
 from sqlalchemy import exc
 
 
-from model import connect_to_db, db, User, Station
+from model import connect_to_db, db, User, Station, Trip
 from get_info import seed_station_information, update_station_status, system_alerts
 
 app = Flask(__name__)
@@ -21,20 +21,17 @@ app.jinja_env.undefined = StrictUndefined
 #---------------------------------------------------------------------#
 # Helper Functions
 #---------------------------------------------------------------------#
-def find_path(g, start_station, end_station):
+def get_trip_by_location(start_location, end_location):
+	return Trip.query.filter(Trip.start_point==start_location, Trip.end_point==end_location).first()
+
+
+def find_path(start_station, end_station):
 	""" This function takes the source station and destination station and
 	forms the path connecting them."""
-	if(start_station == end_station):
-		return
-	possible_stations = db.session.query(end_point, trip_duration).filter_by(Trips.start_point==start_station)
-	for station in possible_stations:
-		g.addedge(start_station, station, trip_duration)
-		find_path(station, end_station)
-	
+	trip_duration = db.session.query(Trip.trip_duration).filter_by(Trip.start_point == start_station, Trip.end_point == end_station)
+	cost = trip_duration/60 * 9.95
+	return trip_duration, cost		
 
-def get_distance(g):
-	"""Algorithm: Dijkstra algorithm"""
-	
 
 def create_new_user(user_info):
 	"""This function takes the request.form objcet passed to the register route and
@@ -99,7 +96,7 @@ def get_closest_stations(location):
 	closest stations to that point"""
 
 	query = db.session.query(Station).order_by(func.ST_Distance(Station.point, 
-		location)).limit(10)
+		location)).limit(5)
 
 	return query.all()
 
@@ -122,6 +119,7 @@ def index():
     	user = get_user_by_id(session['user_id'])
 	print(user.home_point)
     	home = get_closest_stations(user.home_point)
+	citi_home_point = get_trip_by_location(home, work)
     	work = get_closest_stations(user.work_point)
 
     	return render_template('test.html', user=user, home=home, work=work)

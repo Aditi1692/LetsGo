@@ -1,0 +1,78 @@
+/* General */
+
+html, body {
+    height:100%;
+}
+
+.container-fluid {
+    height: 100%;
+}
+
+#logo-text {
+	color: #FFF;
+	font-family: 'Pacifico', cursive;
+	font-size: 2.5em;
+    margin: 1em;
+}
+
+.flashed-messages {
+	height: 1em;
+}
+
+/* Loggin/ Register Styling */
+
+.solid {
+	background: #00171F;
+	color: #FFF;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 3.2em;
+}
+
+.centered {
+	vertical-align: middle;
+}
+
+form {
+	width: auto;
+	margin: .1em;
+}
+
+input {
+	background: transparent;
+	border: none;
+}
+
+.goto-register-form,
+.goto-login-form {
+	font-size: .8em;
+}
+
+/* Google Maps Styling */
+
+#map {
+	 height: 78%;
+}
+
+/* Infowindow styling */
+
+#infowindow {
+	height: -webkit-fill-available;
+	padding: 4em;
+	background:#242527;
+}
+
+.count {
+	font-size: 10em;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: bolder;
+	color: transparent;
+	background:linear-gradient(to right,#fffc00, #e737ea);
+	-webkit-background-clip: text;
+}
+
+.count-label {
+	font-size: 3em;
+	color:transparent;
+	background:linear-gradient(to right,#fffc00, #e737ea);
+	-webkit-background-clip: text;
+}
