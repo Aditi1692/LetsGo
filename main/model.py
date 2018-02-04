@@ -63,8 +63,8 @@ class Station(db.Model):
 
 ##########################################################################
 
-class Trip(db.Model):
-	"""Stores information about start station to end station with their trip
+class Bike_Trip(db.Model):
+	"""Stores information about start station to end station of bikes with their trip
 		duration."""
 
 	__tablename__ = 'trips'
@@ -96,6 +96,46 @@ class Trip(db.Model):
 
 	def __repr__(self):
 		return '<Trip duration:{trip_duration}>'.format(trip_duration=self.trip_duration)
+
+
+#############################################################################
+
+class Cab_Trip(db.Model):
+        """Stores information about pick up location to drop off location with their trip
+                duration."""
+
+        __tablename__ = 'cab_trips'
+
+        id = db.Column(db.Integer,
+                        nullable=False,
+                        autoincrement=False,
+                        primary_key=True)
+        trip_duration = db.Column(db.Integer, nullable=False)
+        fare = db.Column(db.Integer, nullable=False)
+	start_point = db.Column(Geography(geometry_type='POINT', srid=4326), nullable=False)
+        end_point = db.Column(Geography(geometry_type='POINT', srid=4326), nullable=False)
+
+        def start_lat(self):
+                coordinates = load(bytes(self.start_point.data))
+                return coordinates.y
+
+        def start_lng(self):
+                coordinates = load(bytes(self.start_point.data))
+                return coordinates.x
+
+        def stop_lat(self):
+                coordinates = load(bytes(self.stop_point.data))
+                return coordinates.y
+
+        def stop_lng(self):
+                coordinates = load(bytes(self.stop_point.data))
+                return coordinates.x
+
+
+        def __repr__(self):
+                return '<Trip duration:Fare {trip_duration}:{fare}>'.format(trip_duration=self.trip_duration, fare=self.fare)
+
+#################################################################################
 
 def example_data():
     """Add some example stations and a user to the db"""
