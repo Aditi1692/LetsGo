@@ -103,5 +103,5 @@ def clean_data(self):
     g_rdd = g_rdd.map(lambda line: tuple(line.split(',')))
 
 
-if __init__ == '__main__':
+if __name__ == "__main__":
     create_feature()
