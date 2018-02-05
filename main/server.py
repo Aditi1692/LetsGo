@@ -135,7 +135,7 @@ def index():
 	#citi_home_point = get_trip_by_location(home, work)
     	work = get_closest_stations(user.work_point)
         bike_trip_duration, bike_cost = find_bikepath(home, work)
-	cab_trip_duration, cab_cost = find_cabpath(home, work)
+	cab_trip_duration, cab_cost = find_cabpath(home[0], work[0])
     	return render_template('test.html', user=user, home=home, work=work, bike_trip_duration=bike_trip_duration, bike_cost=bike_cost, cab_trip_duration=cab_trip_duration, cab_cost=cab_cost)
 
     return render_template('map_view.html')
