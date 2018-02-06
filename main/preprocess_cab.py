@@ -62,7 +62,7 @@ def data_cleaner(zipped_row):
     indices = (1, 6, 5, 8, 9, 10)
     
     #safety check: make sure row has enough features
-    if len(row) < 10:
+    if len(row) < 11:
         return None
     
     #extract day of the week and hour
