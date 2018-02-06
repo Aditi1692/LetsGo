@@ -12,6 +12,7 @@ from sqlalchemy import exc
 
 from model import connect_to_db, db, User, Station, Bike_Trip, Cab_Trip
 from get_info import seed_bike_station_information, update_bike_station_status, system_alerts
+from preprocess_cab import data_cleaner
 
 app = Flask(__name__)
 app.secret_key = "ursusmaritimus"

@@ -7,6 +7,7 @@ Class names are singular - table names are plural"""
 from flask_sqlalchemy import SQLAlchemy
 from geoalchemy2 import Geography, func
 from shapely.wkb import loads
+from preprocess_cab import data_cleaner
 
 db = SQLAlchemy()
 

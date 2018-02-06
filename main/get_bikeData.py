@@ -1,3 +1,5 @@
+import sys
+
 baseUrl = "https://s3.amazonaws.com/tripdata/index.html/"
 #Bike filename prefix
 bikePrefix = "/bike_tripdata__"

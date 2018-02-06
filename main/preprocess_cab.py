@@ -1,3 +1,11 @@
+import sys
+
+from pyspark import SparkContext
+from pyspark import SparkConf
+from pyspark.sql import SparkSession
+from pyspark.streaming import StreamingContext
+from botocore.exceptions import ClientError
+
 import time
 from datetime import date
 import math
@@ -41,7 +49,7 @@ def date_extractor(date_str,b,minutes_per_bin):
     time_cos = math.cos(time_num * 2 * math.pi)
     time_sin = math.sin(time_num * 2 * math.pi)
        
-    return (year, month, day, time_cat, time_num, time_cos, time_sin)
+    return time_num
 
 def data_cleaner(zipped_row):
     # takes a tuple (row,g,b,minutes_per_bin) as a parameter and returns a tuple of the form:
@@ -50,28 +58,39 @@ def data_cleaner(zipped_row):
     g = zipped_row[1]
     b = zipped_row[2]
     minutes_per_bin = zipped_row[3]
-    # The indices of pickup datetime, longitude, and latitude respectively
-    indices = (1, 6, 5)
+    # The indices of pickup datetime, drop_off datetime, start longitude/latitude, and stop latitude/longitude respectively
+    indices = (1, 6, 5, 8, 9, 10)
     
     #safety check: make sure row has enough features
-    if len(row) < 7:
+    if len(row) < 10:
         return None
     
     #extract day of the week and hour
     date_str = row[indices[0]]
-    clean_date = date_extractor(date_str,b,minutes_per_bin)
+    time = date_extractor(date_str,b,minutes_per_bin)
     #get geo hash
 
-    latitude = float(row[indices[1]])
-    longitude = float(row[indices[2]])
+    start_lat = float(row[indices[1]])
+    start_lon = float(row[indices[2]])
+    end_lat = float(row[indices[3]])
+    end_lon = float(row[indices[4]])
+   
+    # mta fare for the trip
+    fare = float(row[indices[5]]) 
     location = None
     #safety check: make sure latitude and longitude are valid
-    if latitude < 41.1 and latitude > 40.5 and longitude < -73.6 and longitude > -74.1:
-        location = geohash.encode(latitude,longitude, g)
+    if start_lat < 41.1 and start_lat > 40.5 and start_lon < -73.6 and start_lon > -74.1:
+        start_location = geohash.encode(start_lat,start_lon, g)
     else:
         return None
 
-    return tuple(list(clean_date)+[location])
+    #safety check: make sure latitude and longitude are valid
+    if end_lat < 41.1 and end_lat > 40.5 and end_lon < -73.6 and end_lon > -74.1:
+        end_location = geohash.encode(end_lat,end_lon, g)
+    else:
+        return None
+
+    return time, start_lat, start_lon, end_lat, end_lon, fare, start_location, end_location 
 
 
 def create_feature(self):
@@ -97,11 +116,9 @@ def create_feature(self):
 
 
 def clean_data(self):
+    sc = SparkContext(appName="Let's go")
     y_rdd = sc.textFile("s3://" + bucket + "/nyc/yellow*.csv")
     y_rdd = y_rdd.map(lambda line: tuple(line.split(',')))
     g_rdd = sc.textFile("s3://" + bucket + "/nycg/green*.csv")
     g_rdd = g_rdd.map(lambda line: tuple(line.split(',')))
-
-
-if __name__ == "__main__":
-    create_feature()
+    

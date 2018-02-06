@@ -32,6 +32,8 @@ import boto3
 import zipfile
 import io
 import time
+from preprocess_cab import data_cleaner, clean_data
+
 def seed_station_information():
 	"""Get's and formats all station information in order to update stations in
 	the database.
@@ -110,11 +112,31 @@ def update_data():
 						#print('Added to db')						
 						db.session.commit()
 						#print('Committed to database')
-						time.sleep(2)
 					except exc.IntegrityError:
 						db.session.rollback()
 					
 
+
+def seed_cab_info():
+	cab_file = 'nyc_taxi_dataset'
+ 	with open('./data/' + cab_file,'r') as in_fp:
+		for line in in_fp:
+			time, start_lat, start_lon, end_lat, end_lon, fare = data_cleaner(chunk)
+			start_point = 'POINT(' + start_lat + ' ' + start_lon + ')'
+		        end_point = 'POINT(' + end_lat + ' ' + end_lon + ')'
+		        #print(start_point)     
+        		new_trip = Cab_Trip(id = i,
+                			           trip_duration = time,
+                                                        start_point = start_point,
+                                                        end_point = end_point, fare = fare)
+                                        #print(new_trip)
+                                        try:
+                                                #print('Inside try')
+                                                db.session.add(new_trip)
+                                                #print('Added to db')                                           
+                                                db.session.commit()
+                                        except exc.IntegrityError:
+                                                db.session.rollback()
 
 
 def update_station_status():
