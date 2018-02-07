@@ -1,7 +1,8 @@
-
+import sys
+import boto3
 
 def set_up(self):
-	baseUrl = "http://storage.googleapis.com/tlc-trip-data/"
+	baseUrl = "https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2017-01.csv"
 	#Yellow/green cab filename prefix
 	yCabFNPrefix = "/yellow_tripdata_"
 	gCabFNPrefix = "/green_tripdata_"
