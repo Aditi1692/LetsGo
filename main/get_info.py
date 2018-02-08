@@ -1,3 +1,7 @@
+from pyspark import SparkContext
+from pyspark.streaming import StreamingContext
+from pyspark.streaming.kafka import KafkaUtils
+
 """ These are the only functions in the app that interface with the Citibike API
 
 JSON Information about the stations is obtained from these links
@@ -159,6 +163,23 @@ def update_station_status():
 			db.session.commit()
 		except exc.IntegrityError:
 			db.session.rollback()
+
+
+def consume_data():
+	 sc = SparkContext(appName="Lets Go")
+	 ssc = StreamingContext(sc, 1)
+
+    	zkQuorum, topic = sys.argv[1:]
+    	kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 1})
+    	lines = kvs.map(lambda x: x[1])
+    	counts = lines.flatMap(lambda line: line.split(" ")) \
+        	.map(lambda row: (row, update_station_status())) \
+	        .reduceByKey(lambda a, b: a+b)
+    
+
+    	ssc.start()
+    	ssc.awaitTermination()
+
 
 def system_alerts():
 	"""Get alerts about the system. 

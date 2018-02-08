@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Test{% endblock %}
-{% block meta %}<script src="http://maps.google.com/maps/api/js?key=AIzaSyD5BOHJtA9GKwGPHxQiqaBYK6LjmmY-SMI" type="text/javascript"></script>{% endblock %}
+{% block meta %}<script src="http://maps.google.com/maps/api/js?key=AIzaSyBH1d4tqCFWdhuDYSu8OkWSc0BM38nfdzE" type="text/javascript"></script>{% endblock %}
 {% block body %}
 
 <div id="over-map">
@@ -16,29 +16,54 @@
 
   <script>
 
-    var home_markers = [
-	    {% for s in home %}
-	    ['{{ s.name }}', {{ s.lat() }}, {{ s.lng() }}, {{ s.num_bikes_available }}, {{ s.num_docks_available }}],
-	    {% endfor %}
+    var bike_home_markers = [
+            {% for s in home %}
+            ['{{ s.name }}', {{ s.lat() }}, {{ s.lng() }}, {{ s.num_bikes_available }}, {{ s.num_docks_available }}],
+            {% endfor %}
     ];
 
-    var home_content = [
+    var bike_home_content = [
       {% for s in home %}
       ['<div id="bodyContent">' + '<p>{{s.name}} bikes: {{ s.num_bikes_available }} docks: {{ s.num_docks_available }}</p>' + '</div>'],
       {% endfor %}
     ];
 
-    var work_markers = [
-	    {% for s in work %}
-	    ['{{ s.name }}', {{ s.lat() }}, {{ s.lng() }}, {{ s.num_bikes_available }}, {{ s.num_docks_available }}],
-	    {% endfor %}
+    var bike_work_markers = [
+            {% for s in work %}
+            ['{{ s.name }}', {{ s.lat() }}, {{ s.lng() }}, {{ s.num_bikes_available }}, {{ s.num_docks_available }}],
+            {% endfor %}
     ];
 
-    var work_content = [
+    var bike_work_content = [
       {% for s in work %}
       ['<div id="bodyContent">' + '<p>{{s.name}} docks: {{ s.num_docks_available }} bikes: {{ s.num_bikes_available }} </p>' + '</div>'],
       {% endfor %}
     ];
+   
+
+    var user_location = [
+	['Current location', {{user.home_lat()}}, {{user.home_lng()}}],
+	['Destination location', {{user.work_lat()}}, {{user.work_lng()}}]
+    ];
+
+    var cab_location = [
+        ['<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<div id="bodyContent">'+
+            '<p><b> Cab location</p>'+bike_work_markers[0][0]+
+            '<p> Time:{{cab_trip_duration}}</p>'+
+            '<p> Cost: {{cab_cost}}</p>'+
+            '</div>'+
+            '</div>', {{cab_home_lat}}, {{cab_home_lng}}],
+        ['Cab Destination location', {{cab_work_lat}}, {{cab_work_lng}}]
+    ];
+
+    var bike_trip_duration = ['<div id="bodyContent">' + '<p>{{bike_trip_duration}}</p>' + '</div>'];
+    var bike_cost = ['<div id="bodyContent">' + '<p>{{bike_cost}}</p>' + '</div>'];
+
+    var cab_trip_duration = ['<div id="bodyContent">' + '<p>{{cab_trip_duration}}</p>' + '</div>'];
+    var cab_cost = ['<div id="bodyContent">' + '<p>{{cab_cost}}</p>' + '</div>'];
 
     var bounds = new google.maps.LatLngBounds();
     var infoWindow = new google.maps.InfoWindow();
@@ -55,20 +80,69 @@
 
     // Add Map Title
     var titleControl = $('#over-map');
+    var iconbase ={
+        url: "https://inhabitat.com/wp-content/blogs.dir/1/files/2012/12/citibike2.jpg", // url
+        scaledSize: new google.maps.Size(50, 50), // scaled size
+        origin: new google.maps.Point(0,0), // origin
+        anchor: new google.maps.Point(0, 0) // anchor
+        };
+     var cab = {
+        url: "https://i.amz.mshcdn.com/HQCiDyBTO2yOFdk3AFJ_a_x91Xg=/950x534/filters:quality(90)/2015%2F08%2F28%2F2c%2F4263264196.b8621.jpg",
+        scaledSize: new google.maps.Size(50, 50), // scaled size
+        origin: new google.maps.Point(0,0), // origin
+        anchor: new google.maps.Point(0, 0) // anchor
+       };
     map.controls[google.maps.ControlPosition.TOP_CENTER].push(titleControl);
 
-    // Add Map Markers (home)
-    for (i = 0; i < 5; i++) { 
-    	var position = new google.maps.LatLng(home_markers[i][1], home_markers[i][2]);
+    // Add Map Markers (bike home)
+    for (i = 0; i < 1; i++) { 
+        var position = new google.maps.LatLng(bike_home_markers[i][1], bike_home_markers[i][2]);
       bounds.extend(position);
       marker = new google.maps.Marker({
         position: position,
+        icon: iconbase,
         map: map
       });
 
-      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+	 google.maps.event.addListener(marker, 'click', (function(marker, i) {
         return function() {
-          infowindow.setContent(home_markers[i][0]);
+          infowindow.setContent( '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<div id="bodyContent">'+
+            '<p><b> Citibike Station</p>'+bike_work_markers[0][0]+
+            '<p> Time:{{bike_trip_duration}}</p>'+
+            '<p> Cost: $163/yr</p>'+
+            '</div>'+
+            '</div>' );
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+
+     google.maps.event.addListener(marker, 'click', (function (marker, i) {
+              return function () {
+                  //infoWindow.setContent(content[i][0]);
+                  //infoWindow.open(map, marker);    
+              jQuery( '#infowindow' ).empty();
+              jQuery( '#infowindow' ).append(bike_home_content[i][0] );          
+              }
+          })(marker, i));
+          gmarkers.push(marker);
+    };
+
+    // Add Map Markers (bike work)
+    for (i = 0; i < 1; i++) { 
+        var position = new google.maps.LatLng(bike_work_markers[i][1], bike_work_markers[i][2]);
+      bounds.extend(position);
+      marker = new google.maps.Marker({
+        position: position,
+        icon: iconbase,
+        map: map
+      });
+
+     google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(bike_home_markers[i][0]);
           infowindow.open(map, marker);
         }
       })(marker, i));
@@ -78,24 +152,25 @@
                   //infoWindow.setContent(content[i][0]);
                   //infoWindow.open(map, marker);    
               jQuery( '#infowindow' ).empty();
-              jQuery( '#infowindow' ).append( home_content[i][0] );          
+              jQuery( '#infowindow' ).append(bike_work_content[i][0] );          
               }
           })(marker, i));
           gmarkers.push(marker);
     };
 
-    // Add Map Markers (work)
-    for (i = 0; i < 5; i++) { 
-    	var position = new google.maps.LatLng(work_markers[i][1], work_markers[i][2]);
+    // Add Map Markers (user)
+    for (i = 0; i < 2; i++) { 
+        var position = new google.maps.LatLng(user_location[i][1], user_location[i][2]);
       bounds.extend(position);
       marker = new google.maps.Marker({
         position: position,
         map: map
       });
 
+
       google.maps.event.addListener(marker, 'click', (function(marker, i) {
         return function() {
-          infowindow.setContent(work_markers[i][0]);
+          infowindow.setContent(user_location[i][0]);
           infowindow.open(map, marker);
         }
       })(marker, i));
@@ -105,13 +180,77 @@
                   //infoWindow.setContent(content[i][0]);
                   //infoWindow.open(map, marker);    
               jQuery( '#infowindow' ).empty();
-              jQuery( '#infowindow' ).append( work_content[i][0] );          
+              jQuery( '#infowindow' ).append(user_location[i][0] );          
               }
           })(marker, i));
           gmarkers.push(marker);
     };
 
-    map.fitBounds(bounds);
+    // Add Map Markers (cab)
+    for (i = 0; i < 2; i++) { 
+      var position = new google.maps.LatLng(cab_location[i][1], cab_location[i][2]);
+      bounds.extend(position);
+      marker = new google.maps.Marker({
+        position: position,
+	icon: cab,
+        map: map
+      });
+
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(cab_location[i][0]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+
+      google.maps.event.addListener(marker, 'click', (function (marker, i) {
+              return function () {
+                  //infoWindow.setContent(content[i][0]);
+                  //infoWindow.open(map, marker);    
+              jQuery( '#infowindow' ).empty();
+              jQuery( '#infowindow' ).append(cab_location[i][0] );          
+              }
+          })(marker, i));
+          gmarkers.push(marker);
+    };
+
+    // Add Map Markers (cab)
+    for (i = 0; i < 2; i++) { 
+      var position = new google.maps.LatLng(cab_location[i][1], cab_location[i][2]);
+      bounds.extend(position);
+      marker = new google.maps.Marker({
+        position: position,
+        icon: cab,
+        map: map
+      });
+
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(cab_location[i][0]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+
+      google.maps.event.addListener(marker, 'click', (function (marker, i) {
+              return function () {
+                  //infoWindow.setContent(content[i][0]);
+                  //infoWindow.open(map, marker);    
+              jQuery( '#infowindow' ).empty();
+              jQuery( '#infowindow' ).append(cab_location[i][0] );          
+              }
+          })(marker, i));
+          gmarkers.push(marker);
+    };
+
+
+ map.fitBounds(bounds);
 
   </script>
 {% endblock %}
+
+
+
+
+
