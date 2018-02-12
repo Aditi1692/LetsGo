@@ -72,8 +72,8 @@ def update_data():
 	"Get all the details of batch processed data"
 
 	session = boto3.session.Session(
-        aws_access_key_id="AKIAITBW5KDFRGWH6U3Q",
-        aws_secret_access_key="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"
+        aws_access_key_id=ACCESS_KEY,
+        aws_secret_access_key=SECRET_ACCESS_KEY
         )
 
         s3 = session.resource("s3")
