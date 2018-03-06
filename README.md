@@ -1,4 +1,4 @@
-# SmartCommute
+# Let's Go
 
 # Project Idea (1-sentence): 
 The project is designed to help the people to decide the transportation means to travel to their respective destination.
@@ -25,7 +25,9 @@ Since the data is real-time streaming, I am using following technologies:
 
 1. Spark Streaming
 2. Kafka
+3. PostgreSQL
 
 # Proposed architecture
 
 The following figure shows the overview of the project architecture:
+![Screenshot]architecture.png
