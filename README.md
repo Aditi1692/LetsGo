@@ -30,4 +30,4 @@ Since the data is real-time streaming, I am using following technologies:
 # Proposed architecture
 
 The following figure shows the overview of the project architecture:
-![Screenshot]architecture.png
+![Screenshot](architecture.png)
